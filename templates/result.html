@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="card">
+    <h1>Verification Result</h1>
+
+    {% if error %}
+      <p class="invalid">{{ error }}</p>
+    {% else %}
+      <p><strong>File:</strong> {{ filename }}</p>
+      <p><strong>Decoded barcode/QR:</strong> {{ barcode_value or "None detected" }}</p>
+
+      {% if barcode_result.found %}
+        <p><strong>Record status:</strong> {{ barcode_result.status }}</p>
+        <p><strong>Holder:</strong> {{ barcode_result.record.holder_name }} ({{ barcode_result.record.document_type }})</p>
+      {% else %}
+        <p><strong>Record status:</strong> Not found in institutional dataset</p>
+      {% endif %}
+
+      {% if vision_result.label != "n/a" %}
+        <p><strong>Visual authenticity check:</strong> {{ vision_result.label }} ({{ "%.2f"|format(vision_result.confidence) }} confidence)</p>
+      {% endif %}
+
+      <h2 class="{{ 'valid' if verdict.valid else 'invalid' }}">
+        {{ "✅ VALID DOCUMENT" if verdict.valid else "❌ NOT VALID" }}
+      </h2>
+      <ul>
+        {% for r in verdict.reasons %}
+          <li>{{ r }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <a href="/">Verify another document</a>
+  </div>
+</body>
+</html>

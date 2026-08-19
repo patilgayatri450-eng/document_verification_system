@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document Verification System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="card">
+    <h1>Document Verification System</h1>
+    <p>Upload a document image (student ID, marksheet, certificate, or govt ID) to verify its authenticity.</p>
+    <form action="/verify" method="post" enctype="multipart/form-data">
+      <input type="file" name="document" accept=".png,.jpg,.jpeg,.pdf" required>
+      <button type="submit">Verify Document</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Document Detail{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Document Detail</h1>
+  <p><strong>Student:</strong> {{ doc.student.full_name }} ({{ doc.student.username }})</p>
+  <p><strong>File:</strong> {{ doc.original_filename }}</p>
+  <p><strong>Type:</strong> {{ doc.doc_type or "—" }}</p>
+  <p><strong>Decoded barcode/QR:</strong> {{ doc.barcode_value or "None detected" }}</p>
+  <p><strong>Record status:</strong> {{ doc.record_status or "not found in dataset" }}</p>
+  {% if doc.vision_label != "n/a" %}
+    <p><strong>Visual authenticity check:</strong> {{ doc.vision_label }} ({{ "%.2f"|format(doc.vision_confidence) }} confidence)</p>
+  {% endif %}
+  <p><strong>Submitted:</strong> {{ doc.uploaded_at.strftime("%d %b %Y, %H:%M") }}</p>
+
+  <h2 class="{{ 'valid' if doc.is_valid else 'invalid' }}">
+    {{ "✅ VALID DOCUMENT" if doc.is_valid else "❌ NOT VALID" }}
+    <span class="muted small">(automatic check)</span>
+  </h2>
+  <ul>
+    {% for r in doc.reasons.split("\n") %}<li>{{ r }}</li>{% endfor %}
+  </ul>
+
+  {% set fname = doc.stored_path.split('/')[-1].split('\\')[-1] %}
+  <p>
+    <a href="{{ url_for('uploaded_file', filename=fname) }}" target="_blank" class="btn-secondary">
+      View Original Document{% if fname.lower().endswith('.pdf') %} (PDF){% endif %}
+    </a>
+  </p>
+  {% if fname.lower().endswith(('.png', '.jpg', '.jpeg')) %}
+    <img class="doc-preview" src="{{ url_for('uploaded_file', filename=fname) }}" alt="document preview">
+  {% endif %}
+
+  <h2>Clerk Review</h2>
+  <p>
+    Status:
+    <span class="status-badge status-{{ doc.clerk_status }}">{{ doc.clerk_status | capitalize }}</span>
+    {% if doc.clerk_reviewed_at %}
+      <span class="muted small">— reviewed {{ doc.clerk_reviewed_at.strftime("%d %b %Y, %H:%M") }}</span>
+    {% endif %}
+  </p>
+  {% if doc.clerk_notes %}
+    <p class="muted">Note: {{ doc.clerk_notes }}</p>
+  {% endif %}
+
+  <h2>📅 Expiry Date</h2>
+  {% if doc.expiry_date %}
+    <p>
+      Expires: <strong>{{ doc.expiry_date.strftime("%d %b %Y") }}</strong>
+      {% if doc.expiry_reminder_sent %}<span class="muted small">— reminder already sent</span>{% endif %}
+    </p>
+  {% else %}
+    <p class="muted">No expiry date set.</p>
+  {% endif %}
+  <form action="{{ url_for('clerk_set_expiry', doc_id=doc.id) }}" method="post" class="review-form">
+    <label>Set / update expiry date (SMS reminder sent automatically as it approaches)</label>
+    <input type="date" name="expiry_date" value="{{ doc.expiry_date.strftime('%Y-%m-%d') if doc.expiry_date else '' }}">
+    <button type="submit">Save Expiry Date</button>
+  </form>
+
+  <form action="" method="post" class="review-form">
+    <label>Note (optional)</label>
+    <textarea name="notes" rows="2" placeholder="Reason for approval/rejection, if any"></textarea>
+    <div class="review-buttons">
+      <button type="submit" formaction="{{ url_for('clerk_approve_document', doc_id=doc.id) }}" class="approve">
+        Approve
+      </button>
+      <button type="submit" formaction="{{ url_for('clerk_reject_document', doc_id=doc.id) }}" class="danger">
+        Reject
+      </button>
+    </div>
+  </form>
+
+  <div class="actions-row">
+    <form action="{{ url_for('clerk_delete_document', doc_id=doc.id) }}" method="post"
+          onsubmit="return confirm('Delete this document record? This cannot be undone.');">
+      <button type="submit" class="link-danger">Delete Document</button>
+    </form>
+    <a href="{{ url_for('clerk_student_documents', student_id=doc.student_id) }}">Back to {{ doc.student.full_name }}'s Documents</a>
+  </div>
+</div>
+{% endblock %}

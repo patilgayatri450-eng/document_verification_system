@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Legal Document Analysis System{% endblock %}
+{% block content %}
+<div class="card hero">
+  <div class="hero-logo">⚖️📋</div>
+  <h1 class="hero-title">Legal Document Analysis System</h1>
+  <p class="hero-tagline">Fast, automated checks for student documents — backed by a human final call.</p>
+  <p>
+    Every submitted document gets its barcode or QR code decoded and matched
+    against institutional records, plus a visual authenticity check as a
+    second layer 🔍. A clerk then gives the final manual approval ✅ — so
+    nothing gets signed off without a human in the loop.
+  </p>
+
+  {% if current_user.is_authenticated %}
+    <a href="{{ url_for('clerk_dashboard' if current_user.is_clerk() else 'student_dashboard') }}" class="btn-primary hero-cta">
+      Go to my Dashboard →
+    </a>
+  {% endif %}
+</div>
+
+<div class="feature-row">
+  <div class="card feature-card">
+    <div class="feature-icon">📷</div>
+    <h3>Scan & Detect</h3>
+    <p class="muted">Barcode, QR code, or OCR fallback — reads the document however it can.</p>
+  </div>
+  <div class="card feature-card">
+    <div class="feature-icon">🔎</div>
+    <h3>Cross-Check</h3>
+    <p class="muted">Matches against institutional records and runs a visual forgery check.</p>
+  </div>
+  <div class="card feature-card">
+    <div class="feature-icon">🧑‍💼</div>
+    <h3>Human Review</h3>
+    <p class="muted">A clerk approves or rejects every document — the final word is always human.</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="card tab-card">
+    <div class="tab-icon">🎓</div>
+    <h2>For Students</h2>
+    <p>Create an account, submit your documents for verification, and track
+      the status of each one — including whether a clerk has approved it.</p>
+    <div class="tab-actions">
+      <a href="{{ url_for('login') }}" class="btn-primary">Student Login</a>
+      <a href="{{ url_for('register') }}" class="btn-secondary">Create Account</a>
+    </div>
+  </div>
+
+  <div class="card tab-card">
+    <div class="tab-icon">🧑‍💼</div>
+    <h2>For Clerks</h2>
+    <p>Log in to see every student's submitted documents, review the automatic
+      verification result, and manually approve or reject each document — you
+      can also register students and submit documents on their behalf.</p>
+    <div class="tab-actions">
+      <a href="{{ url_for('login') }}" class="btn-primary">Clerk Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

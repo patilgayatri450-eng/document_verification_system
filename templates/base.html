@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Legal Document Analysis System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="topnav">
+    <a href="{{ url_for('index') }}" class="brand">⚖️ Legal Document Analysis</a>
+    {% if current_user.is_authenticated %}
+      <span class="navlinks">
+        {% if current_user.is_clerk() %}
+          <a href="{{ url_for('clerk_dashboard') }}">🧑‍💼 Clerk Dashboard</a>
+          <a href="{{ url_for('clerk_audit_log') }}">🕒 Audit Log</a>
+          
+        {% else %}
+          <a href="{{ url_for('student_dashboard') }}">🎓 My Documents</a>
+        {% endif %}
+        <span class="navuser">{{ current_user.full_name }} ({{ current_user.role }})</span>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </span>
+    {% else %}
+      <span class="navlinks">
+        <a href="{{ url_for('login') }}">Log In</a>
+      </span>
+    {% endif %}
+  </nav>
+
+  <div class="page">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {% for m in messages %}<p>{{ m }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

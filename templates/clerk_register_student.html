@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Register a Student{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <a href="{{ url_for('clerk_dashboard') }}" class="back-link">&larr; Back to Students</a>
+  <h1>👤 Register a Student</h1>
+  <p class="muted">Use this for a walk-in student who doesn't have an account yet — you can upload documents on their behalf right after.</p>
+  <form method="post">
+    <label>Full Name</label>
+    <input type="text" name="full_name" required autofocus>
+    <label>Phone Number (for SMS reminders — include country code, e.g. +919876543210)</label>
+    <input type="tel" name="phone_number" placeholder="+91XXXXXXXXXX">
+    <label>Username</label>
+    <input type="text" name="username" required>
+    <label>Temporary Password</label>
+    <input type="password" name="password" required minlength="6">
+    <button type="submit">Create Student Account</button>
+  </form>
+</div>
+{% endblock %}

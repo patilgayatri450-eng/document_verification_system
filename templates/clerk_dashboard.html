@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Clerk Dashboard{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>👥 Students</h1>
+  <div class="dashboard-actions">
+    <form method="get" class="searchbar">
+      <input type="text" name="student_name" placeholder="Search by student name..." value="{{ name_query }}">
+      <button type="submit">Search</button>
+      {% if name_query %}<a href="{{ url_for('clerk_dashboard') }}">Clear</a>{% endif %}
+    </form>
+    <a href="{{ url_for('clerk_register_student') }}" class="btn-primary">+ Register Student</a>
+  </div>
+
+  {% if students %}
+  <table>
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Username</th>
+        <th>Documents Submitted</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student, doc_count in students %}
+      <tr class="clickable-row" onclick="window.location='{{ url_for('clerk_student_documents', student_id=student.id) }}'">
+        <td><a href="{{ url_for('clerk_student_documents', student_id=student.id) }}">{{ student.full_name }}</a></td>
+        <td>{{ student.username }}</td>
+        <td>{{ doc_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No students found{% if name_query %} for "{{ name_query }}"{% endif %}.</p>
+  {% endif %}
+</div>
+{% endblock %}

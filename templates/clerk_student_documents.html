@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ student.full_name }}'s Documents{% endblock %}
+{% block content %}
+<div class="card">
+  <a href="{{ url_for('clerk_dashboard') }}" class="back-link">&larr; Back to Students</a>
+  <h1>👤 {{ student.full_name }}</h1>
+  <p class="muted">Username: {{ student.username }}</p>
+</div>
+
+<div class="card">
+  <h1>📤 Add a Document for {{ student.full_name }}</h1>
+  <p class="muted">Use this to submit a document on the student's behalf — e.g. a physical document handed in at the counter.</p>
+  <form action="{{ url_for('clerk_upload_for_student', student_id=student.id) }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="document" accept=".png,.jpg,.jpeg,.pdf" required>
+    <label>Barcode number (optional — only fill in if automatic detection fails)</label>
+    <input type="text" name="manual_barcode" placeholder="e.g. 12512507035010162435" value="{{ suggested_barcode }}">
+    {% if suggested_barcode %}
+      <p class="muted small">👆 Pre-filled from OCR — double-check it matches the number printed on the document before resubmitting.</p>
+    {% endif %}
+    <button type="submit">Submit Document</button>
+  </form>
+</div>
+
+<div class="card">
+  <h1>📄 Submitted Documents</h1>
+  {% if docs %}
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Type</th>
+        <th>Barcode</th>
+        <th>Result</th>
+        <th>Clerk Review</th>
+        <th>Submitted</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in docs %}
+      <tr>
+        <td>{{ doc.original_filename }}</td>
+        <td>{{ doc.doc_type or "—" }}</td>
+        <td>{{ doc.barcode_value or "not detected" }}</td>
+        <td class="{{ 'valid' if doc.is_valid else 'invalid' }}">
+          {{ "Valid" if doc.is_valid else "Not Valid" }}
+        </td>
+        <td><span class="status-badge status-{{ doc.clerk_status }}">{{ doc.clerk_status | capitalize }}</span></td>
+        <td>{{ doc.uploaded_at.strftime("%d %b %Y, %H:%M") }}</td>
+        <td class="actions">
+          <a href="{{ url_for('clerk_view_document', doc_id=doc.id) }}">View</a>
+          <form action="{{ url_for('clerk_delete_document', doc_id=doc.id) }}" method="post"
+                onsubmit="return confirm('Delete this document record? This cannot be undone.');">
+            <button type="submit" class="link-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">{{ student.full_name }} hasn't submitted any documents yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
