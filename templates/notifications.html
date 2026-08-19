@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}SMS Notifications{% endblock %}
+{% block content %}
+<div class="card">
+  <a href="{{ url_for('clerk_dashboard') }}" class="back-link">&larr; Back to Students</a>
+  <h1>📱 SMS Notification History</h1>
+  <p class="muted">Every expiry-reminder attempt made by send_expiry_reminders.py — sent or failed.</p>
+
+  {% if entries %}
+  <table>
+    <thead>
+      <tr>
+        <th>When</th>
+        <th>Student</th>
+        <th>Document</th>
+        <th>Status</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td>{{ e.sent_at.strftime("%d %b %Y, %H:%M") }}</td>
+        <td>{{ e.student.full_name }}</td>
+        <td>{{ e.document.original_filename }}</td>
+        <td><span class="status-badge status-{{ 'approved' if e.status == 'sent' else 'rejected' }}">{{ e.status | capitalize }}</span></td>
+        <td class="muted">{{ e.failure_reason or "" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">No reminders sent yet — run send_expiry_reminders.py to send some.</p>
+  {% endif %}
+</div>
+{% endblock %}
